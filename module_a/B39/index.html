@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <button class="add">Add a counter</button>
+    <div class="wrapper">
+
+    </div>
+</body>
+<script>
+    const addBtn = document.querySelector('.add');
+    const wrapper = document.querySelector('.wrapper');
+
+    addBtn.addEventListener('click', () => {
+        const element = "<div class='counter'><h1>0</h1><div class='management'><button class='decrement'>Decrement</button><button class='increment'>Increment</button></div></div>"
+        wrapper.innerHTML += element;
+    })
+
+    wrapper.addEventListener('click', (e) => {
+        if (e.target.classList.contains('decrement')) {
+            const count = e.target.closest('.counter').querySelector("h1");
+            count.textContent = `${parseInt(count.textContent) - 1}`;
+        }
+        if (e.target.classList.contains('increment')) {
+            const count = e.target.closest('.counter').querySelector("h1");
+            count.textContent = `${parseInt(count.textContent) + 1}`;
+        }
+    })
+</script>
+</html>

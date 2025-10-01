@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Image Compare</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="compare-container">
+        <input type="text" id="splitter" value="" readonly />
+        <img src="./assets/before.jpg" alt="before img" />
+        <img src="./assets/after.jpg" id="after-img" alt="after img" />
+    </div>
+</body>
+<script>
+    const container = document.getElementById('compare-container');
+    const splitter = document.getElementById('splitter');
+    const afterImg = document.getElementById('after-img');
+
+    let isDragging = false;
+
+    function updateCompare(clientX) {
+        const rect = container.getBoundingClientRect();
+        let x = clientX - rect.left;
+
+        if (x < 0) x = 0;
+        if (x > rect.width  ) x = rect.width;
+
+        const percentX = (x / rect.width);
+        const percentRight = (1 - percentX) * 100;
+
+        afterImg.style.clipPath = `inset(0 ${percentRight}% 0 0)`;
+
+        splitter.style.left = `${percentX * 100}%`;
+    }
+
+    splitter.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        e.preventDefault();
+    });
+
+    container.addEventListener('click', (e) => {
+        if (!isDragging) {
+            updateCompare(e.clientX);
+        }
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            updateCompare(e.clientX);
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+
+</script>
+</html>
+

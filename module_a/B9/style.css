@@ -1,0 +1,43 @@
+body > div {
+    position: relative;
+    width: 800px;
+    height: 450px;
+    overflow: hidden;
+    cursor: ew-resize;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    user-select: none;
+}
+
+img[alt="after img"] {
+    clip-path: inset(0 50% 0 0);
+}
+
+input[type="text"] {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    width: 40px;
+    height: 100%;
+    background-color: transparent;
+    border: none;
+    cursor: inherit;
+    padding: 0;
+    margin: 0;
+
+    background-image: url('./assets/splitter.svg'), linear-gradient(to right, white, white);
+    background-repeat: no-repeat, repeat-y;
+    background-position: center;
+    background-size: 20px auto, 2px 100%;
+}
