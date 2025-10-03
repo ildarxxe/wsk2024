@@ -24,37 +24,35 @@
         const rect = container.getBoundingClientRect();
         let x = clientX - rect.left;
 
-        if (x < 0) x = 0;
-        if (x > rect.width  ) x = rect.width;
+        if (x < 0) x = 0
+        if (x > rect.width) x = rect.width;
 
-        const percentX = (x / rect.width);
+        const percentX = x / rect.width;
         const percentRight = (1 - percentX) * 100;
 
-        afterImg.style.clipPath = `inset(0 ${percentRight}% 0 0)`;
-
-        splitter.style.left = `${percentX * 100}%`;
+        afterImg.style.clipPath =  `inset(0 ${percentRight} 0 0)`;
     }
 
-    splitter.addEventListener('mousedown', (e) => {
+    splitter.addEventListener("mousedown", function (e) {
         isDragging = true;
         e.preventDefault();
-    });
+    })
 
-    container.addEventListener('click', (e) => {
+    container.addEventListener("click", function (e) {
         if (!isDragging) {
-            updateCompare(e.clientX);
+            updateCompare(e.clientX)
         }
-    });
+    })
 
-    document.addEventListener('mousemove', (e) => {
+    document.addEventListener('mousemove', function (e) {
         if (isDragging) {
-            updateCompare(e.clientX);
+            updateCompare(e.clientX)
         }
-    });
+    })
 
-    document.addEventListener('mouseup', () => {
+    document.addEventListener('mouseup', function () {
         isDragging = false;
-    });
+    })
 
 </script>
 </html>

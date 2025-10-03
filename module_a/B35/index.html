@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+<input type="number" name="count" id="count" />
+<div class="wrapper">
+    <canvas width=800" height="700"></canvas>
+</div>
+</body>
+<script>
+    const canvas = document.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function draw(x, y, size, color = "black") {
+        ctx.beginPath()
+        ctx.moveTo(x, y)
+        ctx.lineTo(x + size / 2, y + size * Math.sqrt(3) / 2)
+        ctx.lineTo(x - size / 2, y + size * Math.sqrt(3) / 2)
+        ctx.fillStyle = color;
+        ctx.fill()
+    }
+
+    function calculate(x, y, size, depth) {
+        if (depth === 0) {
+            draw(x, y, size)
+        } else {
+            const newSize = size / 2;
+            calculate(x, y, newSize, depth - 1)
+            calculate(x + newSize / 2, y + newSize * Math.sqrt(3) / 2, newSize, depth - 1)
+            calculate(x - newSize / 2, y + newSize * Math.sqrt(3) / 2, newSize, depth - 1)
+        }
+    }
+
+    function serpinski() {
+        const x = canvas.width / 2;
+        const y = 20;
+        const count = document.getElementById("count").value;
+        const size = 500;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        calculate(x, y, size, count)
+    }
+
+    document.getElementById("count").addEventListener("input", () => {
+        serpinski();
+    })
+</script>
+</html>

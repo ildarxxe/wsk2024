@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<input type="file" name="file" id="file" accept="image/*">
+<div class="wrapper">
+    <canvas></canvas>
+</div>
+</body>
+<script>
+    const canvas = document.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+    const fileInput = document.getElementById('file');
+
+    function getQueryParam(key) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(key);
+    }
+
+    function getCellSize() {
+        const cellSize = getQueryParam('cell_size');
+        const size = parseInt(cellSize, 10);
+
+        return size > 0 ? size : 50;
+    }
+
+    function getAverageColor(context, x, y, width, height) {
+        let imageData;
+        try {
+            imageData = context.getImageData(x, y, width, height);
+        } catch (e) {
+            return `rgb(0, 0,0 )`
+        }
+
+        const data = imageData.data;
+        let r = 0, g = 0, b = 0;
+        let count = 0;
+
+        for (let i = 0; i < data.length; i += 4) {
+            r += data[i];
+            g += data[i + 1];
+            b += data[i + 2];
+            count++
+        }
+
+        if (count === 0) return "rgb(0, 0, 0)";
+
+        const avgR = Math.floor(r / count);
+        const avgG = Math.floor(g / count);
+        const avgB = Math.floor(b / count);
+
+        return `rgb(${avgR}, ${avgG}, ${avgB})`;
+    }
+
+    function createMosaic(image) {
+        const {width, height} = image;
+        canvas.height = height;
+        canvas.width = width;
+
+        const CELL_SIZE = getCellSize();
+
+        const newCanvas = document.createElement('canvas');
+        newCanvas.width = width;
+        newCanvas.height = height;
+        const newCtx = newCanvas.getContext('2d');
+        newCtx.drawImage(image, 0, 0, width, height);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let x = 0; x < width; x += CELL_SIZE) {
+            for (let y = 0; y < height; y += CELL_SIZE) {
+                const cellWidth = Math.min(CELL_SIZE, width - x)
+                const cellHeight = Math.min(CELL_SIZE, height - y)
+                ctx.fillStyle = getAverageColor(newCtx, x, y, cellWidth, cellHeight);
+                ctx.fillRect(x, y, cellWidth, cellHeight);
+            }
+        }
+    }
+
+    fileInput.onchange = function () {
+        const file = this.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const image = new Image();
+            image.onload = function () {
+                createMosaic(image);
+            }
+            image.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+</script>
+</html>
