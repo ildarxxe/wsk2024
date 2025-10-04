@@ -1,0 +1,34 @@
+.new_product {
+    display: inline-block;
+    padding: 5px 10px;
+    background: #0068ff;
+    border: none;
+    color: white;
+    font-size: 18px;
+    text-decoration: none;
+    margin: 20px 0;
+}
+
+.products_wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hidden-product td {
+    text-decoration: line-through;
+    color: #a0a0a0;
+}
+
+tr {
+    cursor: pointer;
+}
+
+tr:hover {
+    background: rgba(79, 227, 113, 0.67);
+}
+
+.hidden-product:hover {
+    background: #ff7720 !important;
+}
