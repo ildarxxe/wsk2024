@@ -10,6 +10,17 @@ class Product extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        "name",
+        "french_name",
+        "description",
+        "french_description",
+        "brand_name",
+        "origin_country",
+        "gross_weight",
+        "net_weight",
+        "weight_unit",
+    ];
     protected $primaryKey = 'GTIN';
 
     public $incrementing = false;
