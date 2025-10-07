@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Product;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -47,7 +48,18 @@ class ProductController extends Controller
 
         $exist = Product::query()->where("GTIN", $data["GTIN"])->exists();
         if ($exist) {
-            return redirect()->back()->with(["error" => "GTIN already exist"]);
+            return redirect("/products")->with(["error" => "GTIN already exist"]);
+        }
+
+        if(strlen($data['GTIN']) > 14 || strlen($data['GTIN']) < 13) {
+            return redirect("/products")->with(["error" => "GTIN is invalid"]);
+        }
+
+        $company = Company::query()->where("name", $data["brand_name"])->first();
+        if (isset($company) && $company->id !== null) {
+            $data["company_id"] = $company->id;
+        } else {
+            $data["company_id"] = 1;
         }
 
         try {
@@ -118,11 +130,11 @@ class ProductController extends Controller
     public function deleteProduct($GTIN): RedirectResponse {
         $product = Product::query()->where("GTIN", $GTIN)->first();
         if (!$product) {
-            return redirect()->back()->with("errors", "Product not found");
+            return redirect("/products/" . $GTIN)->with(["errors" => "Product not found"]);
         }
 
         if ($product->hidden === 0) {
-            return redirect()->back()->with("errors", "Product is active");
+            return redirect("/products/" . $GTIN)->with(["errors" => "Product is active"]);
         }
 
         $product->delete();

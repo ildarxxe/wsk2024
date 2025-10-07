@@ -7,6 +7,16 @@
 
 @section("content")
     <div class="product_wrapper">
+        <div class="errors_wrapper">
+            @if(session("error"))
+                <p>{{session("error")}}</p>
+            @endif
+        </div>
+        <div class="messages_wrapper">
+            @if(session("success"))
+                <p>{{session("success")}}</p>
+            @endif
+        </div>
         <div class="product">
             <div class="page_title">{{$product['name']}}</div>
             <div class="product_management">
@@ -42,7 +52,7 @@
                 <div class="product_info">
                     <div class="box">
                         <h2>Company name:</h2>
-                        <p>{{$product['company_name']}}</p>
+                        <p>{{isset($product['company_name']) ? $product['company_name'] : "No company"}}</p>
                     </div>
                     <div class="box">
                         <h2>Brand name:</h2>
@@ -80,37 +90,39 @@
                         <h2>Status:</h2>
                         <p>{{$product['hidden'] === 0 ? "Active" : "Hidden"}}</p>
                     </div>
-                    <div class="box">
-                        <h1>Contacts:</h1>
-                        <div class="in_box">
-                            <h2>Telephone number:</h2>
-                            <p>{{$product['company']['telephone_number']}}</p>
+                    @if(isset($product['company']))
+                        <div class="box">
+                            <h1>Contacts:</h1>
+                            <div class="in_box">
+                                <h2>Telephone number:</h2>
+                                <p>{{$product['company']['telephone_number']}}</p>
+                            </div>
+                            <div class="in_box">
+                                <h2>Email:</h2>
+                                <p>{{$product['company']['email']}}</p>
+                            </div>
+                            <div class="in_box">
+                                <h2>Owner mobile number:</h2>
+                                <p>{{$product['company']['owner_mobile_number']}}</p>
+                            </div>
+                            <div class="in_box">
+                                <h2>Owner email:</h2>
+                                <p>{{$product['company']['owner_email_address']}}</p>
+                            </div>
+                            <div class="in_box">
+                                <h2>Contact name:</h2>
+                                <p>{{$product['company']['contact_name']}}</p>
+                            </div>
+                            <div class="in_box">
+                                <h2>Contact mobile number:</h2>
+                                <p>{{$product['company']['contact_mobile_number']}}</p>
+                            </div>
+                            <div class="in_box">
+                                <h2>Contact email:</h2>
+                                <p>{{$product['company']['contact_email_address']}}</p>
+                            </div>
                         </div>
-                        <div class="in_box">
-                            <h2>Email:</h2>
-                            <p>{{$product['company']['email']}}</p>
-                        </div>
-                        <div class="in_box">
-                            <h2>Owner mobile number:</h2>
-                            <p>{{$product['company']['owner_mobile_number']}}</p>
-                        </div>
-                        <div class="in_box">
-                            <h2>Owner email:</h2>
-                            <p>{{$product['company']['owner_email_address']}}</p>
-                        </div>
-                        <div class="in_box">
-                            <h2>Contact name:</h2>
-                            <p>{{$product['company']['contact_name']}}</p>
-                        </div>
-                        <div class="in_box">
-                            <h2>Contact mobile number:</h2>
-                            <p>{{$product['company']['contact_mobile_number']}}</p>
-                        </div>
-                        <div class="in_box">
-                            <h2>Contact email:</h2>
-                            <p>{{$product['company']['contact_email_address']}}</p>
-                        </div>
-                    </div>
+                    @endif
                 </div>
             </div>
         </div>

@@ -9,8 +9,66 @@
     <div class="products_wrapper">
         <div class="products">
             <h1 class="page_title">Products Management</h1>
-            <a class="new_product" href="/products/new">Add a new product</a>
-            <div class="errors_wrapper"></div>
+            <button class="new_product">Add a new product</button>
+            <div class="errors_wrapper">
+                @if(session("error"))
+                    <p>{{session("error")}}</p>
+                @endif
+            </div>
+            <div class="messages_wrapper">
+                @if(session("success"))
+                    <p>{{session("success")}}</p>
+                @endif
+            </div>
+            <div class="add_form hidden">
+                <form action="/products/create" method="POST">
+                    <h1>New product</h1>
+                    @csrf
+                    <div class="form_label">
+                        <label for="name">Name:</label>
+                        <input required type="text" name="name" id="name">
+                    </div>
+                    <div class="form_label">
+                        <label for="french_name">Name in french:</label>
+                        <input required type="text" name="french_name" id="french_name">
+                    </div>
+                    <div class="form_label">
+                        <label for="description">Description:</label>
+                        <input required type="text" name="description" id="description">
+                    </div>
+                    <div class="form_label">
+                        <label for="french_description">Description in french:</label>
+                        <input required type="text" name="french_description" id="french_description">
+                    </div>
+                    <div class="form_label">
+                        <label for="GTIN">GTIN:</label>
+                        <input required type="text" name="GTIN" id="GTIN">
+                    </div>
+                    <div class="form_label">
+                        <label for="brand_name">Brand name:</label>
+                        <input required type="text" name="brand_name" id="brand_name">
+                    </div>
+                    <div class="form_label">
+                        <label for="origin_country">Country of origin:</label>
+                        <input required type="text" name="origin_country" id="origin_country">
+                    </div>
+                    <div class="form_label">
+                        <label for="gross_weight">Gross weight:</label>
+                        <input required type="text" name="gross_weight" id="gross_weight">
+                    </div>
+                    <div class="form_label">
+                        <label for="net_weight">Net content weight:</label>
+                        <input required type="text" name="net_weight" id="net_weight">
+                    </div>
+                    <div class="form_label">
+                        <label for="weight_unit">Weight unit:</label>
+                        <input required type="text" name="weight_unit" id="weight_unit">
+                    </div>
+                    <div class="form_button">
+                        <button type="submit">Create</button>
+                    </div>
+                </form>
+            </div>
             <div class="products_inner">
                 @if(isset($products) && count($products) !== 0)
                     <table>

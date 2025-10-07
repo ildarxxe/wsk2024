@@ -32,4 +32,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         })
     })
+
+    const newProdBtn = document.querySelector(".new_product")
+    const addForm = document.querySelector(".add_form")
+
+    newProdBtn.addEventListener("click", () => {
+        addForm.classList.toggle("hidden")
+    })
 })

@@ -11,6 +11,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
+        "GTIN",
         "name",
         "french_name",
         "description",
