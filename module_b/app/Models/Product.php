@@ -4,31 +4,39 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Product extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = "GTIN";
+    public $incrementing = false;
+
     protected $fillable = [
         "GTIN",
+        "company_id",
         "name",
-        "french_name",
+        "name_fr",
         "description",
-        "french_description",
+        "description_fr",
         "brand_name",
-        "origin_country",
+        "image_url",
+        "country",
         "gross_weight",
         "net_weight",
         "weight_unit",
+        "is_hidden",
     ];
-    protected $primaryKey = 'GTIN';
 
-    public $incrementing = false;
-    protected $keyType = 'integer';
-
-    public function company(): BelongsTo
+    public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    protected static function boot() {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->company_id = random_int(1,6);
+        });
     }
 }

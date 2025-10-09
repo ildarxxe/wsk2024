@@ -2,155 +2,144 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
+use App\Http\Resources\ProductResource;
 use App\Models\Product;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function getProducts(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
-    {
-        $products = Product::with('company')->get();
-        $products = $products->map(function ($product) {
-            if ($product->company) {
-                $product->company_name = $product->company->name;
-            } else {
-                $product->company_name = 'Нет компании';
-            }
+    public function getProducts(Request $request, $format = null) {
+        $products = Product::query()->with("company")->get();
 
-            unset($product->company);
+        if ($format === '.json' || $request->wantsJson()) {
+            return ProductResource::collection($products);
+        }
 
-            return $product;
-        });
-
-        return view('products')->with(['products' => $products]);
+        return view("products")->with('products', $products->toArray());
     }
 
-    public function createProduct(Request $request): Application|Redirector|\Illuminate\Contracts\Foundation\Application|RedirectResponse
-    {
+    public function getProduct(Request $request, $GTIN, $format = null) {
+        $cleanGTIN = str_replace(".json", "", $GTIN);
+        $product = Product::query()->with("company")->where('GTIN', $cleanGTIN)->first();
+
+        if (!$product) {
+            return redirect("/products")->with("error", "Product not found");
+        }
+
+        if ($format === '.json' || str_ends_with($GTIN, ".json") || $request->wantsJson()) {
+            return new ProductResource($product);
+        }
+
+        return view("product")->with('product', $product->toArray());
+    }
+
+    public function createProduct(Request $request) {
         $data = $request->validate([
-            "name" => "required|string",
-            "french_name" => "required|string",
             "GTIN" => "required|string",
+            "name" => "required|string",
+            "name_fr" => "required|string",
             "description" => "required|string",
-            "french_description" => "required|string",
+            "description_fr" => "required|string",
             "brand_name" => "required|string",
-            "origin_country" => "required|string",
-            "gross_weight" => "required|string",
-            "net_weight" => "required|string",
+            "country" => "required|string",
+            "gross_weight" => "required",
+            "net_weight" => "required",
             "weight_unit" => "required|string",
         ]);
 
-        $exist = Product::query()->where("GTIN", $data["GTIN"])->exists();
+        $exist = Product::query()->where('GTIN', $data['GTIN'])->exists();
         if ($exist) {
-            return redirect("/products")->with(["error" => "GTIN already exist"]);
+            return redirect()->back()->with(["error", "GTIN already exists"]);
         }
 
-        if(strlen($data['GTIN']) > 14 || strlen($data['GTIN']) < 13) {
-            return redirect("/products")->with(["error" => "GTIN is invalid"]);
-        }
-
-        $company = Company::query()->where("name", $data["brand_name"])->first();
-        if (isset($company) && $company->id !== null) {
-            $data["company_id"] = $company->id;
-        } else {
-            $data["company_id"] = 1;
+        if (strlen($data["GTIN"]) > 14 || strlen($data["GTIN"]) < 13) {
+            return redirect()->back()->with(["error", "GTIN is invalid"]);
         }
 
         try {
             Product::query()->create($data);
-            return redirect("/products")->with(["success" => "Product created"]);
+            return redirect()->back()->with(["success", "Product created"]);
         } catch (\Exception $e) {
-            return redirect("/products")->with(["error" => $e->getMessage()]);
+            return redirect()->back()->with(["error", "Product creation failed"]);
         }
     }
 
-    public function updateProduct(Request $request, $GTIN): RedirectResponse
-    {
+    public function updateProduct(Request $request, $GTIN) {
         $data = $request->validate([
             "name" => "required|string",
-            "french_name" => "required|string",
+            "name_fr" => "required|string",
             "description" => "required|string",
-            "french_description" => "required|string",
+            "description_fr" => "required|string",
             "brand_name" => "required|string",
-            "origin_country" => "required|string",
-            "gross_weight" => "required|string",
-            "net_weight" => "required|string",
+            "country" => "required|string",
+            "gross_weight" => "required",
+            "net_weight" => "required",
             "weight_unit" => "required|string",
         ]);
 
-        $product = Product::query()->where("GTIN", $GTIN)->first();
-        if (!$product) {
-            return redirect()->back()->with(["error" => "Product not found"]);
+        try {
+            $product = Product::query()->where("GTIN", $GTIN)->first();
+            $product->update($data);
+            return redirect()->back()->with(["success", "Product updated"]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(["error", "Product update failed"]);
         }
-
-        $product->update($data);
-        $product->save();
-
-        return redirect()->back()->with(["success" => "Product updated"]);
     }
 
-    public function changeStatus($GTIN): \Illuminate\Http\JsonResponse
-    {
-        $product = Product::query()->where("GTIN", $GTIN)->first();
-        if (!$product) {
-            return response()->json(["error" => "Product not found"], 404);
+    public function hideProduct(Request $request, $GTIN) {
+        $product = Product::query()->where('GTIN', $GTIN)->first();
+
+        try {
+            $product->update(["is_hidden" => true]);
+            return redirect()->back()->with(["success", "Product hidden"]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(["error", "Product hidden failed"]);
+        }
+    }
+
+    public function deleteProduct(Request $request, $GTIN) {
+        $product = Product::query()->where('GTIN', $GTIN)->first();
+        if ($product->hidden === 0) {
+            return redirect()->back()->with(["error", "Product not hidden"]);
         }
 
         try {
-            $product->hidden = $product->hidden === 0 ? 1 : 0;
+            $product->delete();
+            return redirect()->back()->with(["success", "Product deleted"]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(["error", "Product deletion failed"]);
+        }
+    }
+
+    public function deleteImage(Request $request, $GTIN) {
+        $product = Product::query()->where('GTIN', $GTIN)->first();
+
+        try {
+            $product->image_url = "";
             $product->save();
-            return response()->json(["message" => "Product updated successfully"]);
-        } catch (\Exception $exception) {
-            return response()->json(["error" => $exception->getMessage()], 500);
+            return redirect()->back()->with(["success", "Product image deleted"]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(["error", "Product image deletion failed"]);
         }
     }
 
-    public function getProduct($GTIN): \Illuminate\View\View|Application|Redirector|\Illuminate\Contracts\Foundation\Application|RedirectResponse
+    public function uploadImage(Request $request, $GTIN): JsonResponse
     {
-        $product = Product::query()->where("GTIN", $GTIN)->with("company")->first();
-        if (!$product) {
-            return redirect()->back()->with("errors", "Product not found");
+        $file = $request->file("file");
+        $filePath = $file->store('images', 'public');
+        $fileUrl = Storage::url($filePath);
+
+
+        $product = Product::query()->where('GTIN', $GTIN)->first();
+
+        try {
+            $product->image_url = $fileUrl;
+            $product->save();
+            return response()->json(["success" => "Product image uploaded"]);
+        } catch (\Exception $e) {
+            return response()->json(["error" => "Product image upload failed"]);
         }
-
-        $product_data = $product->toArray();
-
-        if (isset($product->company)) {
-            $product_data['company_name'] = $product->company->name;
-        }
-
-        return view('product')->with(["product" => $product_data]);
-    }
-
-    public function deleteProduct($GTIN): RedirectResponse {
-        $product = Product::query()->where("GTIN", $GTIN)->first();
-        if (!$product) {
-            return redirect("/products/" . $GTIN)->with(["errors" => "Product not found"]);
-        }
-
-        if ($product->hidden === 0) {
-            return redirect("/products/" . $GTIN)->with(["errors" => "Product is active"]);
-        }
-
-        $product->delete();
-        return redirect("/products")->with(["success" => "Product deleted"]);
-    }
-
-    public function deleteImage($GTIN): RedirectResponse
-    {
-        $product = Product::query()->where("GTIN", $GTIN)->first();
-        if (!$product) {
-            return redirect()->back()->with("errors", "Product not found");
-        }
-
-        $product->image_url = "";
-        $product->save();
-
-        return redirect()->back()->with(["success" => "Product image deleted"]);
     }
 }

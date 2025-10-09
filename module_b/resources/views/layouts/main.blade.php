@@ -8,19 +8,35 @@
     <meta name="csrf-token" content="{{csrf_token()}}">
     <title>@yield("title")</title>
     <link rel="stylesheet" href="{{asset("css/main.css")}}">
-    @yield("styles")
+    @yield("css")
 </head>
 <body>
-<main>
-    <header>
-        <nav>
-            <a href="/products">Products</a>
-            <a href="/companies">Companies</a>
-            <a href="/checker">Check GTIN</a>
-        </nav>
-    </header>
+<header>
+    <nav>
+        <a href="/products">Products</a>
+        <a href="/companies">Companies</a>
+        <a href="/checker">Checker GTIN</a>
+    </nav>
+</header>
+    @if(session("error"))
+        <div class="error">
+            <p>{{session("error")}}</p>
+        </div>
+    @endif
+
+    @if(session("success"))
+        <div class="message">
+            <p>{{session("success")}}</p>
+        </div>
+    @endif
+
+    @if(session("message"))
+        <div class="message">
+            <p>{{session("message")}}</p>
+        </div>
+    @endif
+
     @yield("content")
-</main>
 </body>
 @yield("script")
 </html>
