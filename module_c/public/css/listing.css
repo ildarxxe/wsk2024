@@ -1,0 +1,32 @@
+.listing-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.listing-item {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.listing-item a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.listing-item h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.5rem;
+    color: #007bff;
+}
+
+.listing-item p {
+    margin: 0;
+    color: #666;
+}
+
+.listing-item.folder h3 {
+    color: #333;
+    font-weight: bold;
+}

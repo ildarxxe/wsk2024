@@ -1,18 +1,13 @@
 <?php
 
+use App\Http\Controllers\HeritageController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+Route::redirect("/", "/01_module_C/heritages");
 
-Route::get('/', function () {
-    return view('welcome');
+Route::prefix("01_module_C")->group(function () {
+    Route::get("/heritages/tags/{tag}", [HeritageController::class, "handleTag"])->name("heritage.tags");
+    Route::get("/heritages/{path?}", [HeritageController::class, "handlePath"])
+        ->where("path", ".*")
+        ->name("heritage.path");
 });
